@@ -99,7 +99,10 @@
         <div class="content-section">
           <div class="section-header">
             <h3>Recent Applications</h3>
-            <button class="btn glass">Filter Candidates</button>
+            <select id="dashboardRoleFilter" style="padding: 0.5rem; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--background); color: var(--text-main);">
+              <option value="All">All Roles</option>
+              <option value="SDE-1">SDE-1</option>
+            </select>
           </div>
           <div style="overflow-x: auto;">
             <table>
@@ -113,7 +116,7 @@
                   <th>Action</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody id="dashboardTableBody">
                 <tr>
                   <td>Rahul Sharma</td>
                   <td>CSE</td>
@@ -196,14 +199,14 @@
           <div class="section-header">
             <h3>All Applicants</h3>
             <div style="display: flex; gap: 1rem;">
-              <select style="padding: 0.5rem; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--background); color: var(--text-main);">
-                <option>All Roles</option>
-                <option>SDE-1</option>
+              <select id="applicantsRoleFilter" style="padding: 0.5rem; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--background); color: var(--text-main);">
+                <option value="All">All Roles</option>
+                <option value="SDE-1">SDE-1</option>
               </select>
-              <select style="padding: 0.5rem; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--background); color: var(--text-main);">
-                <option>All Statuses</option>
-                <option>Applied</option>
-                <option>Shortlisted</option>
+              <select id="applicantsStatusFilter" style="padding: 0.5rem; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--background); color: var(--text-main);">
+                <option value="All">All Statuses</option>
+                <option value="Applied">Applied</option>
+                <option value="Shortlisted">Shortlisted</option>
               </select>
             </div>
           </div>
@@ -219,7 +222,7 @@
                   <th>Resume</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody id="applicantsTableBody">
                 <tr>
                   <td>Rahul Sharma</td>
                   <td>CSE</td>
@@ -424,6 +427,54 @@
           alert('Interview scheduled successfully! An email invitation has been sent to the student.');
           scheduleForm.reset();
         });
+      }
+
+      // Filter Logic for Dashboard
+      const dashRoleFilter = document.getElementById('dashboardRoleFilter');
+      const dashTableBody = document.getElementById('dashboardTableBody');
+      if (dashRoleFilter && dashTableBody) {
+        dashRoleFilter.addEventListener('change', (e) => {
+          const selectedRole = e.target.value;
+          const rows = dashTableBody.querySelectorAll('tr');
+          rows.forEach(row => {
+            const role = row.cells[3].textContent.trim(); // 4th column is 'Applied For'
+            if (selectedRole === 'All' || role === selectedRole) {
+              row.style.display = '';
+            } else {
+              row.style.display = 'none';
+            }
+          });
+        });
+      }
+
+      // Filter Logic for Applicants Section
+      const appRoleFilter = document.getElementById('applicantsRoleFilter');
+      const appStatusFilter = document.getElementById('applicantsStatusFilter');
+      const appTableBody = document.getElementById('applicantsTableBody');
+
+      const applyApplicantsFilters = () => {
+        const roleVal = appRoleFilter.value;
+        const statusVal = appStatusFilter.value;
+        const rows = appTableBody.querySelectorAll('tr');
+
+        rows.forEach(row => {
+          const role = row.cells[3].textContent.trim(); // 4th column is 'Role'
+          const status = row.cells[4].textContent.trim(); // 5th column is 'Status'
+
+          const roleMatch = (roleVal === 'All' || role === roleVal);
+          const statusMatch = (statusVal === 'All' || status === statusVal);
+
+          if (roleMatch && statusMatch) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      };
+
+      if (appRoleFilter && appStatusFilter && appTableBody) {
+        appRoleFilter.addEventListener('change', applyApplicantsFilters);
+        appStatusFilter.addEventListener('change', applyApplicantsFilters);
       }
     });
   </script>
