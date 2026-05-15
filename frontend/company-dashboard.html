@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Company Dashboard - UIET Placement</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    /* Dashboard Base Styles */
+    body { display: block; min-height: 100vh; background-color: var(--background); }
+    .sidebar { width: 250px; background-color: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; height: 100vh; transition: transform 0.3s ease; z-index: 1000; }
+    .sidebar-header { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .sidebar-nav { flex: 1; padding: 1rem 0; overflow-y: auto; }
+    .nav-item { padding: 0.75rem 1.5rem; display: flex; align-items: center; color: var(--text-muted); text-decoration: none; transition: background-color 0.2s, color 0.2s; font-weight: 500; }
+    .nav-item:hover, .nav-item.active { background-color: rgba(59, 130, 246, 0.1); color: var(--primary); border-right: 3px solid var(--primary); }
+    .nav-icon { margin-right: 10px; font-size: 1.2rem; }
+    .sidebar-footer { padding: 1.5rem; border-top: 1px solid var(--border); }
+    .main-content { margin-left: 250px; width: calc(100% - 250px); display: flex; flex-direction: column; min-height: 100vh; transition: margin-left 0.3s ease, width 0.3s ease; }
+    .topbar { height: 70px; background-color: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; position: sticky; top: 0; z-index: 100; }
+    .user-profile { display: flex; align-items: center; gap: 1rem; }
+    .avatar { width: 40px; height: 40px; border-radius: 50%; background-color: var(--primary-light); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    .dashboard-container { padding: 2rem; flex: 1; }
+    .page-title { margin-bottom: 2rem; color: var(--text-main); }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .stat-card { background-color: var(--surface); padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border); display: flex; align-items: center; }
+    .stat-icon { width: 50px; height: 50px; border-radius: var(--radius-md); background-color: rgba(59, 130, 246, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-right: 1.5rem; }
+    .stat-details h4 { color: var(--text-muted); font-size: 0.9rem; font-weight: 500; margin-bottom: 0.25rem; }
+    .stat-details .value { font-size: 1.8rem; font-weight: 700; color: var(--text-main); }
+    .content-section { background-color: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border); padding: 1.5rem; margin-bottom: 2rem; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+    th { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.8rem; }
+    .badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 500; }
+    .badge-primary { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+
+    .mobile-toggle { display: none; background: none; border: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; }
+    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; width: 100%; } .mobile-toggle { display: block; } }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2 class="logo" style="font-size: 1.2rem;">Recruiter Portal</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-target="dashboard"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="#" class="nav-item" data-target="company-profile"><span class="nav-icon">🏢</span> Company Profile</a>
+      <a href="#" class="nav-item" data-target="drives"><span class="nav-icon">🚀</span> My Drives</a>
+      <a href="#" class="nav-item" data-target="applicants"><span class="nav-icon">👥</span> Applicants</a>
+      <a href="#" class="nav-item" data-target="interviews"><span class="nav-icon">📅</span> Interviews</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="login.html" class="nav-item"><span class="nav-icon">🚪</span> Logout</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <button class="mobile-toggle" id="mobile-toggle">☰</button>
+      <div style="flex: 1;"></div>
+      <div class="user-profile">
+        <button id="theme-toggle" class="btn" style="padding: 0.5rem;" aria-label="Toggle Theme">🌓</button>
+        <div class="avatar" style="background: #f59e0b;">A</div>
+        <div style="display: flex; flex-direction: column;">
+          <span style="font-weight: 600; font-size: 0.9rem;">Amazon HR</span>
+          <span style="color: var(--text-muted); font-size: 0.8rem;">Recruitment Team</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="dashboard-container">
+      <!-- Dashboard Section -->
+      <div id="dashboard-section" class="content-view">
+        <h1 class="page-title">Company Dashboard</h1>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">🚀</div>
+            <div class="stat-details">
+              <h4>Active Drives</h4>
+              <div class="value">1</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">👥</div>
+            <div class="stat-details">
+              <h4>Total Applicants</h4>
+              <div class="value">124</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <div class="section-header">
+            <h3>Recent Applications</h3>
+            <button class="btn glass">Filter Candidates</button>
+          </div>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Branch</th>
+                  <th>CGPA</th>
+                  <th>Applied For</th>
+                  <th>Resume</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Rahul Sharma</td>
+                  <td>CSE</td>
+                  <td>8.5</td>
+                  <td>SDE-1</td>
+                  <td><a href="#" style="color: var(--primary);">View</a></td>
+                  <td><button class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Shortlist</button></td>
+                </tr>
+                <tr>
+                  <td>Priya Singh</td>
+                  <td>ECE</td>
+                  <td>9.1</td>
+                  <td>SDE-1</td>
+                  <td><a href="#" style="color: var(--primary);">View</a></td>
+                  <td><button class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Shortlist</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Company Profile Section -->
+      <div id="company-profile-section" class="content-view" style="display: none;">
+        <h1 class="page-title">Company Profile</h1>
+        <div class="content-section">
+          <h3>Company Information</h3>
+          <p style="color: var(--text-muted); margin-top: 1rem;">Manage your company details and recruiter profiles here.</p>
+        </div>
+      </div>
+
+      <!-- My Drives Section -->
+      <div id="drives-section" class="content-view" style="display: none;">
+        <h1 class="page-title">My Drives</h1>
+        <div class="content-section">
+          <h3>Manage Placement Drives</h3>
+          <p style="color: var(--text-muted); margin-top: 1rem;">Create and edit placement drives, set eligibility criteria, and more.</p>
+        </div>
+      </div>
+
+      <!-- Applicants Section -->
+      <div id="applicants-section" class="content-view" style="display: none;">
+        <h1 class="page-title">Applicants</h1>
+        <div class="content-section">
+          <h3>All Applicants</h3>
+          <p style="color: var(--text-muted); margin-top: 1rem;">View all candidates who applied to your drives.</p>
+        </div>
+      </div>
+
+      <!-- Interviews Section -->
+      <div id="interviews-section" class="content-view" style="display: none;">
+        <h1 class="page-title">Interviews</h1>
+        <div class="content-section">
+          <h3>Interview Schedules</h3>
+          <p style="color: var(--text-muted); margin-top: 1rem;">Schedule and manage interviews with shortlisted candidates.</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="assets/js/main.js"></script>
+  <script>
+    document.getElementById('mobile-toggle').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - UIET Placement</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .auth-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: calc(100vh - 70px);
+      background: linear-gradient(135deg, rgba(30,58,138,0.05) 0%, rgba(59,130,246,0.05) 100%);
+    }
+    .auth-card {
+      width: 100%;
+      max-width: 400px;
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background-color: var(--surface);
+      color: var(--text-main);
+      font-family: inherit;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    .auth-title {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: var(--primary);
+    }
+    .toggle-auth {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+    .toggle-auth a {
+      color: var(--primary-light);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    #error-message {
+      color: #ef4444;
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="glass">
+    <a href="index.html" class="logo">UIET Placement</a>
+    <div class="nav-actions">
+      <button id="theme-toggle" class="btn" aria-label="Toggle Theme">🌓</button>
+    </div>
+  </nav>
+
+  <div class="auth-container">
+    <div class="card auth-card glass">
+      <h2 class="auth-title" id="form-title">Welcome Back</h2>
+      <div id="error-message"></div>
+      
+      <form id="auth-form">
+        <div class="form-group" id="role-group">
+          <label for="role" id="role-label">Login As</label>
+          <select id="role" name="role">
+            <option value="student">Student</option>
+            <option value="company">Company</option>
+            <option value="admin">TPO / Admin</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" required placeholder="Enter your email">
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required placeholder="Enter your password">
+        </div>
+        
+        <button type="submit" class="btn btn-primary" style="width: 100%;" id="submit-btn">Login</button>
+      </form>
+
+      <div class="toggle-auth">
+        <span id="toggle-text">Don't have an account? </span>
+        <a id="toggle-link">Register here</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/auth.js"></script>
+</body>
+</html>

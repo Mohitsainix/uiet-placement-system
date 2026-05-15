@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard - UIET Placement</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    /* Reuse dashboard styling from tpo-dashboard.html, normally this would be shared CSS */
+    body { display: block; min-height: 100vh; background-color: var(--background); }
+    .sidebar { width: 250px; background-color: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; height: 100vh; transition: transform 0.3s ease; z-index: 1000; }
+    .sidebar-header { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .sidebar-nav { flex: 1; padding: 1rem 0; overflow-y: auto; }
+    .nav-item { padding: 0.75rem 1.5rem; display: flex; align-items: center; color: var(--text-muted); text-decoration: none; transition: background-color 0.2s, color 0.2s; font-weight: 500; }
+    .nav-item:hover, .nav-item.active { background-color: rgba(59, 130, 246, 0.1); color: var(--primary); border-right: 3px solid var(--primary); }
+    .nav-icon { margin-right: 10px; font-size: 1.2rem; }
+    .sidebar-footer { padding: 1.5rem; border-top: 1px solid var(--border); }
+    .main-content { margin-left: 250px; width: calc(100% - 250px); display: flex; flex-direction: column; min-height: 100vh; transition: margin-left 0.3s ease, width 0.3s ease; }
+    .topbar { height: 70px; background-color: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; position: sticky; top: 0; z-index: 100; }
+    .user-profile { display: flex; align-items: center; gap: 1rem; }
+    .avatar { width: 40px; height: 40px; border-radius: 50%; background-color: var(--primary-light); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    .dashboard-container { padding: 2rem; flex: 1; }
+    .page-title { margin-bottom: 2rem; color: var(--text-main); }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .stat-card { background-color: var(--surface); padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border); display: flex; align-items: center; }
+    .stat-icon { width: 50px; height: 50px; border-radius: var(--radius-md); background-color: rgba(59, 130, 246, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-right: 1.5rem; }
+    .stat-details h4 { color: var(--text-muted); font-size: 0.9rem; font-weight: 500; margin-bottom: 0.25rem; }
+    .stat-details .value { font-size: 1.8rem; font-weight: 700; color: var(--text-main); }
+    .content-section { background-color: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border); padding: 1.5rem; margin-bottom: 2rem; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    
+    /* Specific to student dashboard */
+    .job-card { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 1rem; transition: box-shadow 0.2s; }
+    .job-card:hover { box-shadow: var(--shadow-md); }
+    .job-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+    .company-logo { width: 40px; height: 40px; border-radius: 4px; background: #eee; margin-right: 1rem; }
+    .job-title { font-weight: 600; font-size: 1.1rem; color: var(--text-main); }
+    .company-name { color: var(--text-muted); font-size: 0.9rem; }
+    .job-details { display: flex; gap: 1.5rem; margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-muted); }
+    .job-details span { display: flex; align-items: center; gap: 0.25rem; }
+    .badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 500; }
+    .badge-primary { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+    .mobile-toggle { display: none; background: none; border: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; }
+    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; width: 100%; } .mobile-toggle { display: block; } }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2 class="logo" style="font-size: 1.2rem;">Student Portal</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-target="dashboard"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="#" class="nav-item" data-target="profile"><span class="nav-icon">👤</span> My Profile</a>
+      <a href="#" class="nav-item" data-target="jobs"><span class="nav-icon">💼</span> Jobs Board</a>
+      <a href="#" class="nav-item" data-target="applications"><span class="nav-icon">📝</span> Applications</a>
+      <a href="#" class="nav-item" data-target="tests"><span class="nav-icon">🧠</span> Mock Tests</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="login.html" class="nav-item"><span class="nav-icon">🚪</span> Logout</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <button class="mobile-toggle" id="mobile-toggle">☰</button>
+      <div style="flex: 1;"></div>
+      <div class="user-profile">
+        <button id="theme-toggle" class="btn" style="padding: 0.5rem;" aria-label="Toggle Theme">🌓</button>
+        <div class="avatar">R</div>
+        <div style="display: flex; flex-direction: column;">
+          <span style="font-weight: 600; font-size: 0.9rem;">Rahul Sharma</span>
+          <span style="color: var(--text-muted); font-size: 0.8rem;">CSE, 2026</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="dashboard-container">
+      <!-- Dashboard Section -->
+      <div id="dashboard-section" class="content-view">
+        <h1 class="page-title">Welcome, Rahul! 👋</h1>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">📝</div>
+            <div class="stat-details">
+              <h4>Applications Submitted</h4>
+              <div class="value">4</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">⏳</div>
+            <div class="stat-details">
+              <h4>Interviews Pending</h4>
+              <div class="value">1</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <div class="section-header">
+            <h3>Eligible Placement Drives</h3>
+            <button class="btn glass" style="padding: 0.5rem 1rem;">View All</button>
+          </div>
+          
+          <div class="job-card">
+            <div class="job-header">
+              <div style="display: flex; align-items: center;">
+                <div class="company-logo"></div>
+                <div>
+                  <div class="job-title">Software Development Engineer (SDE)</div>
+                  <div class="company-name">Amazon</div>
+                </div>
+              </div>
+              <span class="badge badge-primary">New</span>
+            </div>
+            <div class="job-details">
+              <span>💰 44 LPA</span>
+              <span>📍 Bangalore / Remote</span>
+              <span>📅 Apply by: Nov 01, 2026</span>
+            </div>
+            <button class="btn btn-primary" style="padding: 0.5rem 1.5rem;">Apply Now</button>
+          </div>
+
+          <div class="job-card">
+            <div class="job-header">
+              <div style="display: flex; align-items: center;">
+                <div class="company-logo"></div>
+                <div>
+                  <div class="job-title">Systems Engineer</div>
+                  <div class="company-name">Infosys</div>
+                </div>
+              </div>
+            </div>
+            <div class="job-details">
+              <span>💰 3.6 LPA</span>
+              <span>📍 Pan India</span>
+              <span>📅 Apply by: Oct 20, 2026</span>
+            </div>
+            <button class="btn glass" style="padding: 0.5rem 1.5rem;" disabled>Applied</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Section -->
+      <div id="profile-section" class="content-view" style="display: none;">
+        <h1 class="page-title">My Profile</h1>
+        <div class="content-section">
+          <div style="display: flex; align-items: center; gap: 2rem; margin-bottom: 2rem;">
+            <div class="avatar" style="width: 100px; height: 100px; font-size: 3rem;">R</div>
+            <div>
+              <h2 style="margin-bottom: 0.5rem;">Rahul Sharma</h2>
+              <p style="color: var(--text-muted); margin-bottom: 0.25rem;">Computer Science & Engineering</p>
+              <p style="color: var(--text-muted);">Class of 2026 | CGPA: 8.5</p>
+            </div>
+          </div>
+          <h3>Resume & Documents</h3>
+          <p style="color: var(--text-muted); margin-top: 1rem;">Upload and manage your resumes, cover letters, and certificates here.</p>
+          <button class="btn btn-primary" style="margin-top: 1rem;">Upload Resume</button>
+        </div>
+      </div>
+
+      <!-- Jobs Board Section -->
+      <div id="jobs-section" class="content-view" style="display: none;">
+        <h1 class="page-title">Jobs Board</h1>
+        <div class="content-section">
+          <h3>All Available Opportunities</h3>
+          <p style="color: var(--text-muted); margin-top: 1rem;">Browse through all open placement drives and internships.</p>
+        </div>
+      </div>
+
+      <!-- Applications Section -->
+      <div id="applications-section" class="content-view" style="display: none;">
+        <h1 class="page-title">My Applications</h1>
+        <div class="content-section">
+          <h3>Application Status</h3>
+          <p style="color: var(--text-muted); margin-top: 1rem;">Track the status of the jobs you have applied to.</p>
+        </div>
+      </div>
+
+      <!-- Mock Tests Section -->
+      <div id="tests-section" class="content-view" style="display: none;">
+        <h1 class="page-title">Mock Tests</h1>
+        <div class="content-section">
+          <h3>Practice Assessments</h3>
+          <p style="color: var(--text-muted); margin-top: 1rem;">Take mock aptitude and coding tests to prepare for actual placements.</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="assets/js/main.js"></script>
+  <script>
+    document.getElementById('mobile-toggle').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+    });
+  </script>
+</body>
+</html>

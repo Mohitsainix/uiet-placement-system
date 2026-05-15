@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TPO Dashboard - UIET Placement</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    body {
+      display: block; /* Removed flex to allow normal block layout with fixed sidebar */
+      min-height: 100vh;
+      background-color: var(--background);
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background-color: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+    
+    .sidebar-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .sidebar-nav {
+      flex: 1;
+      padding: 1rem 0;
+      overflow-y: auto;
+    }
+    
+    .nav-item {
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: background-color 0.2s, color 0.2s;
+      font-weight: 500;
+    }
+    
+    .nav-item:hover, .nav-item.active {
+      background-color: rgba(59, 130, 246, 0.1);
+      color: var(--primary);
+      border-right: 3px solid var(--primary);
+    }
+    
+    .nav-icon {
+      margin-right: 10px;
+      font-size: 1.2rem;
+    }
+
+    .sidebar-footer {
+      padding: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 250px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      width: calc(100% - 250px);
+      transition: margin-left 0.3s ease, width 0.3s ease;
+    }
+
+    /* Topbar */
+    .topbar {
+      height: 70px;
+      background-color: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--primary-light);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    /* Dashboard Content */
+    .dashboard-container {
+      padding: 2rem;
+      flex: 1;
+    }
+    
+    .page-title {
+      margin-bottom: 2rem;
+      color: var(--text-main);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background-color: var(--surface);
+      padding: 1.5rem;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+    }
+    
+    .stat-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: var(--radius-md);
+      background-color: rgba(59, 130, 246, 0.1);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-right: 1.5rem;
+    }
+    
+    .stat-details h4 {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+    
+    .stat-details .value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* Recent Activity / Tables */
+    .content-section {
+      background-color: var(--surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    th {
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+    }
+    
+    .badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    
+    .badge-success { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .badge-warning { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .badge-primary { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+
+    /* Mobile Toggle */
+    .mobile-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .main-content {
+        margin-left: 0;
+        width: 100%;
+      }
+      .mobile-toggle {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2 class="logo" style="font-size: 1.2rem;">TPO Panel</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-target="dashboard">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a href="#" class="nav-item" data-target="students">
+        <span class="nav-icon">🎓</span> Students
+      </a>
+      <a href="#" class="nav-item" data-target="companies">
+        <span class="nav-icon">🏢</span> Companies
+      </a>
+      <a href="#" class="nav-item" data-target="drives">
+        <span class="nav-icon">🚀</span> Placement Drives
+      </a>
+      <a href="#" class="nav-item" data-target="notice">
+        <span class="nav-icon">📢</span> Notice Board
+      </a>
+      <a href="#" class="nav-item" data-target="analytics">
+        <span class="nav-icon">📈</span> Analytics
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="login.html" class="nav-item">
+        <span class="nav-icon">🚪</span> Logout
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="topbar">
+      <button class="mobile-toggle" id="mobile-toggle">☰</button>
+      <div style="flex: 1;"></div>
+      <div class="user-profile">
+        <button id="theme-toggle" class="btn" style="padding: 0.5rem;" aria-label="Toggle Theme">🌓</button>
+        <div class="avatar">A</div>
+        <div style="display: flex; flex-direction: column;">
+          <span style="font-weight: 600; font-size: 0.9rem;">Admin</span>
+          <span style="color: var(--text-muted); font-size: 0.8rem;">TPO Office</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="dashboard-container">
+      <!-- Dashboard Section -->
+      <div id="dashboard-section" class="content-view">
+        <h1 class="page-title">Dashboard Overview</h1>
+        
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">🎓</div>
+            <div class="stat-details">
+              <h4>Total Students</h4>
+              <div class="value">450</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🏢</div>
+            <div class="stat-details">
+              <h4>Partner Companies</h4>
+              <div class="value">42</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-details">
+              <h4>Placed Students</h4>
+              <div class="value">210</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">💼</div>
+            <div class="stat-details">
+              <h4>Active Drives</h4>
+              <div class="value">5</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Drives -->
+        <div class="content-section">
+          <div class="section-header">
+            <h3>Recent Placement Drives</h3>
+            <button class="btn btn-primary">Create New Drive</button>
+          </div>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Company</th>
+                  <th>Role</th>
+                  <th>Package (LPA)</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>TCS Digital</strong></td>
+                  <td>Software Engineer</td>
+                  <td>7.0</td>
+                  <td>Oct 15, 2026</td>
+                  <td><span class="badge badge-success">Completed</span></td>
+                  <td><button class="btn glass" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">View</button></td>
+                </tr>
+                <tr>
+                  <td><strong>Infosys</strong></td>
+                  <td>Systems Engineer</td>
+                  <td>3.6</td>
+                  <td>Oct 20, 2026</td>
+                  <td><span class="badge badge-warning">Active</span></td>
+                  <td><button class="btn glass" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">View</button></td>
+                </tr>
+                <tr>
+                  <td><strong>Amazon</strong></td>
+                  <td>SDE - 1</td>
+                  <td>44.0</td>
+                  <td>Nov 05, 2026</td>
+                  <td><span class="badge badge-primary">Upcoming</span></td>
+                  <td><button class="btn glass" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">View</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Students Section -->
+      <div id="students-section" class="content-view" style="display: none;">
+        <h1 class="page-title">Students</h1>
+        <div class="content-section">
+          <h3>Student Database</h3>
+          <p style="color: var(--text-muted); margin-top: 1rem;">Manage all registered students and their details.</p>
+        </div>
+      </div>
+
+      <!-- Companies Section -->
+      <div id="companies-section" class="content-view" style="display: none;">
+        <h1 class="page-title">Companies</h1>
+        <div class="content-section">
+          <h3>Partner Companies</h3>
+          <p style="color: var(--text-muted); margin-top: 1rem;">Manage partner companies and their profiles.</p>
+        </div>
+      </div>
+
+      <!-- Drives Section -->
+      <div id="drives-section" class="content-view" style="display: none;">
+        <h1 class="page-title">Placement Drives</h1>
+        <div class="content-section">
+          <h3>Manage Drives</h3>
+          <p style="color: var(--text-muted); margin-top: 1rem;">Create and manage all placement drives.</p>
+        </div>
+      </div>
+
+      <!-- Notice Board Section -->
+      <div id="notice-section" class="content-view" style="display: none;">
+        <h1 class="page-title">Notice Board</h1>
+        <div class="content-section">
+          <h3>Announcements</h3>
+          <p style="color: var(--text-muted); margin-top: 1rem;">Publish announcements for students and companies.</p>
+        </div>
+      </div>
+
+      <!-- Analytics Section -->
+      <div id="analytics-section" class="content-view" style="display: none;">
+        <h1 class="page-title">Analytics</h1>
+        <div class="content-section">
+          <h3>Placement Analytics</h3>
+          <p style="color: var(--text-muted); margin-top: 1rem;">View detailed analytics of placement statistics.</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="assets/js/main.js"></script>
+  <script>
+    // Mobile sidebar toggle
+    document.getElementById('mobile-toggle').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+    });
+
+    // Navigation Logic for SPA feel (Inlined to bypass cache)
+    document.addEventListener('DOMContentLoaded', () => {
+      const navItems = document.querySelectorAll('.sidebar-nav .nav-item[data-target]');
+      const contentViews = document.querySelectorAll('.content-view');
+
+      if (navItems.length > 0 && contentViews.length > 0) {
+        navItems.forEach(item => {
+          item.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            navItems.forEach(nav => nav.classList.remove('active'));
+            contentViews.forEach(view => view.style.display = 'none');
+            
+            item.classList.add('active');
+            const targetId = item.getAttribute('data-target') + '-section';
+            const targetView = document.getElementById(targetId);
+            if (targetView) {
+              targetView.style.display = 'block';
+            }
+            
+            if (window.innerWidth <= 768) {
+              document.getElementById('sidebar').classList.remove('open');
+            }
+          });
+        });
+      }
+    });
+  </script>
+</body>
+</html>
