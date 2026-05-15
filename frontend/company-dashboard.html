@@ -119,7 +119,7 @@
                   <td>CSE</td>
                   <td>8.5</td>
                   <td>SDE-1</td>
-                  <td><a href="#" style="color: var(--primary);">View</a></td>
+                  <td><a href="#" class="view-resume-btn" style="color: var(--primary);">View</a></td>
                   <td><button class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Shortlist</button></td>
                 </tr>
                 <tr>
@@ -127,7 +127,7 @@
                   <td>ECE</td>
                   <td>9.1</td>
                   <td>SDE-1</td>
-                  <td><a href="#" style="color: var(--primary);">View</a></td>
+                  <td><a href="#" class="view-resume-btn" style="color: var(--primary);">View</a></td>
                   <td><button class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Shortlist</button></td>
                 </tr>
               </tbody>
@@ -139,9 +139,20 @@
       <!-- Company Profile Section -->
       <div id="company-profile-section" class="content-view" style="display: none;">
         <h1 class="page-title">Company Profile</h1>
-        <div class="content-section">
-          <h3>Company Information</h3>
-          <p style="color: var(--text-muted); margin-top: 1rem;">Manage your company details and recruiter profiles here.</p>
+        <div class="content-section" style="max-width: 600px;">
+          <div style="display: flex; align-items: center; gap: 2rem; margin-bottom: 2rem;">
+            <div class="avatar" style="width: 80px; height: 80px; font-size: 2.5rem; background: #f59e0b;">A</div>
+            <div>
+              <h2 style="margin-bottom: 0.5rem; color: var(--text-main);">Amazon</h2>
+              <p style="color: var(--text-muted); margin-bottom: 0.25rem;">E-commerce & Cloud Computing</p>
+              <p style="color: var(--primary);">www.amazon.jobs</p>
+            </div>
+          </div>
+          <div style="margin-bottom: 1.5rem;">
+            <h4 style="color: var(--text-main); margin-bottom: 0.5rem;">About</h4>
+            <p style="color: var(--text-muted); line-height: 1.6;">Amazon is guided by four principles: customer obsession rather than competitor focus, passion for invention, commitment to operational excellence, and long-term thinking.</p>
+          </div>
+          <button class="btn btn-primary" onclick="alert('Edit Profile functionality coming soon!')">Edit Profile</button>
         </div>
       </div>
 
@@ -149,8 +160,32 @@
       <div id="drives-section" class="content-view" style="display: none;">
         <h1 class="page-title">My Drives</h1>
         <div class="content-section">
-          <h3>Manage Placement Drives</h3>
-          <p style="color: var(--text-muted); margin-top: 1rem;">Create and edit placement drives, set eligibility criteria, and more.</p>
+          <div class="section-header">
+            <h3>Active Placement Drives</h3>
+            <button class="btn btn-primary" onclick="alert('Create Drive logic can be added here or moved to TPO.')">Create Drive</button>
+          </div>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Role</th>
+                  <th>Locations</th>
+                  <th>Package</th>
+                  <th>Applicants</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Software Development Engineer (SDE-1)</strong></td>
+                  <td>Bangalore, Hyderabad, Remote</td>
+                  <td>44.0 LPA</td>
+                  <td>124</td>
+                  <td><button class="btn glass edit-drive-btn" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Edit / Add Position</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -158,27 +193,238 @@
       <div id="applicants-section" class="content-view" style="display: none;">
         <h1 class="page-title">Applicants</h1>
         <div class="content-section">
-          <h3>All Applicants</h3>
-          <p style="color: var(--text-muted); margin-top: 1rem;">View all candidates who applied to your drives.</p>
+          <div class="section-header">
+            <h3>All Applicants</h3>
+            <div style="display: flex; gap: 1rem;">
+              <select style="padding: 0.5rem; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--background); color: var(--text-main);">
+                <option>All Roles</option>
+                <option>SDE-1</option>
+              </select>
+              <select style="padding: 0.5rem; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--background); color: var(--text-main);">
+                <option>All Statuses</option>
+                <option>Applied</option>
+                <option>Shortlisted</option>
+              </select>
+            </div>
+          </div>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Branch</th>
+                  <th>CGPA</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Resume</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Rahul Sharma</td>
+                  <td>CSE</td>
+                  <td>8.5</td>
+                  <td>SDE-1</td>
+                  <td><span class="badge badge-primary">Applied</span></td>
+                  <td><a href="#" class="view-resume-btn" style="color: var(--primary);">View</a></td>
+                </tr>
+                <tr>
+                  <td>Priya Singh</td>
+                  <td>ECE</td>
+                  <td>9.1</td>
+                  <td>SDE-1</td>
+                  <td><span class="badge badge-success" style="background: rgba(16,185,129,0.1); color: #10b981;">Shortlisted</span></td>
+                  <td><a href="#" class="view-resume-btn" style="color: var(--primary);">View</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
       <!-- Interviews Section -->
       <div id="interviews-section" class="content-view" style="display: none;">
         <h1 class="page-title">Interviews</h1>
-        <div class="content-section">
-          <h3>Interview Schedules</h3>
-          <p style="color: var(--text-muted); margin-top: 1rem;">Schedule and manage interviews with shortlisted candidates.</p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+          <!-- Schedule Form -->
+          <div class="content-section">
+            <h3>Schedule Interview</h3>
+            <form id="scheduleInterviewForm" style="margin-top: 1.5rem;">
+              <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Select Candidate</label>
+                <select required style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);">
+                  <option value="">-- Choose Candidate --</option>
+                  <option value="Priya Singh">Priya Singh (SDE-1)</option>
+                  <option value="Amit Kumar">Amit Kumar (SDE-1)</option>
+                </select>
+              </div>
+              <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Date & Time</label>
+                <input type="datetime-local" required style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);">
+              </div>
+              <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Meeting Link / Venue</label>
+                <input type="text" placeholder="e.g. Google Meet link" required style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);">
+              </div>
+              <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem;">Schedule & Send Invite</button>
+            </form>
+          </div>
+
+          <!-- Upcoming Interviews -->
+          <div class="content-section">
+            <h3>Upcoming Interviews</h3>
+            <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+              <!-- Interview Card -->
+              <div style="border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                  <strong style="color: var(--text-main);">Priya Singh</strong>
+                  <span class="badge badge-primary">SDE-1</span>
+                </div>
+                <div style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem;">
+                  📅 Nov 10, 2026 at 10:00 AM<br>
+                  📍 Google Meet
+                </div>
+                <button class="btn glass" style="width: 100%; padding: 0.5rem;">Join Meeting</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
     </div>
   </main>
 
+  <!-- Resume Viewer Modal -->
+  <div id="resumeModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+    <div style="background: var(--surface); padding: 2rem; border-radius: var(--radius-lg); width: 100%; max-width: 800px; height: 80vh; display: flex; flex-direction: column; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 style="margin: 0; color: var(--text-main);">Candidate Resume</h3>
+        <button class="close-resume-modal" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+      </div>
+      <div style="flex: 1; background: #e5e7eb; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+        <p>[ PDF Document Viewer Placeholder ]<br>In a real app, an iframe would display the student's uploaded resume PDF here.</p>
+      </div>
+      <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end;">
+        <button class="btn btn-primary close-resume-modal" style="padding: 0.5rem 1.5rem;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Drive Modal -->
+  <div id="editDriveModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+    <div style="background: var(--surface); padding: 2rem; border-radius: var(--radius-lg); width: 100%; max-width: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3 style="margin: 0; color: var(--text-main);">Edit Drive / Add Position</h3>
+        <button class="close-edit-modal" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+      </div>
+      <form id="editDriveForm">
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Role/Position Name</label>
+          <input type="text" value="Software Development Engineer (SDE-1)" required style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);">
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Locations</label>
+          <input type="text" value="Bangalore, Hyderabad, Remote" required style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);">
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Package (LPA)</label>
+          <input type="number" step="0.1" value="44.0" required style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);">
+        </div>
+        <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem;">
+          <button type="button" class="btn glass close-edit-modal" style="padding: 0.75rem 1.5rem;">Cancel</button>
+          <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem;">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="assets/js/main.js"></script>
   <script>
+    // Navigation and Mobile Sidebar Toggle
     document.getElementById('mobile-toggle').addEventListener('click', () => {
       document.getElementById('sidebar').classList.toggle('open');
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const navItems = document.querySelectorAll('.sidebar-nav .nav-item[data-target]');
+      const contentViews = document.querySelectorAll('.content-view');
+
+      if (navItems.length > 0 && contentViews.length > 0) {
+        navItems.forEach(item => {
+          item.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            navItems.forEach(nav => nav.classList.remove('active'));
+            contentViews.forEach(view => view.style.display = 'none');
+            
+            item.classList.add('active');
+            const targetId = item.getAttribute('data-target') + '-section';
+            const targetView = document.getElementById(targetId);
+            if (targetView) {
+              targetView.style.display = 'block';
+            }
+            
+            if (window.innerWidth <= 768) {
+              document.getElementById('sidebar').classList.remove('open');
+            }
+          });
+        });
+      }
+
+      // Resume Modal Logic
+      const resumeModal = document.getElementById('resumeModal');
+      const viewResumeBtns = document.querySelectorAll('.view-resume-btn');
+      const closeResumeBtns = document.querySelectorAll('.close-resume-modal');
+
+      viewResumeBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          resumeModal.style.display = 'flex';
+        });
+      });
+
+      closeResumeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          resumeModal.style.display = 'none';
+        });
+      });
+
+      // Edit Drive Modal Logic
+      const editDriveModal = document.getElementById('editDriveModal');
+      const editDriveBtns = document.querySelectorAll('.edit-drive-btn');
+      const closeEditBtns = document.querySelectorAll('.close-edit-modal');
+      const editDriveForm = document.getElementById('editDriveForm');
+
+      editDriveBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          editDriveModal.style.display = 'flex';
+        });
+      });
+
+      closeEditBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          editDriveModal.style.display = 'none';
+        });
+      });
+
+      editDriveForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        alert('Drive position and details updated successfully!');
+        editDriveModal.style.display = 'none';
+      });
+
+      // Schedule Interview Logic
+      const scheduleForm = document.getElementById('scheduleInterviewForm');
+      if (scheduleForm) {
+        scheduleForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          // Simulate backend API call and email sending
+          alert('Interview scheduled successfully! An email invitation has been sent to the student.');
+          scheduleForm.reset();
+        });
+      }
     });
   </script>
 </body>
