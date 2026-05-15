@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="assets/css/style.css">
   <style>
     body {
@@ -374,10 +375,45 @@
 
       <!-- Students Section -->
       <div id="students-section" class="content-view" style="display: none;">
-        <h1 class="page-title">Students</h1>
+        <h1 class="page-title">Student Database</h1>
         <div class="content-section">
-          <h3>Student Database</h3>
-          <p style="color: var(--text-muted); margin-top: 1rem;">Manage all registered students and their details.</p>
+          <div class="section-header" style="flex-wrap: wrap; gap: 1rem;">
+            <h3>All Registered Students</h3>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+              <input type="text" id="studentSearch" placeholder="Search by name or roll no..." style="padding: 0.5rem; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--background); color: var(--text-main);">
+              <select id="branchFilter" style="padding: 0.5rem; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--background); color: var(--text-main);">
+                <option value="All">All Branches</option>
+                <option value="CSE">CSE</option>
+                <option value="ECE">ECE</option>
+                <option value="IT">IT</option>
+                <option value="ME">ME</option>
+                <option value="CE">CE</option>
+                <option value="EE">EE</option>
+              </select>
+              <select id="placementFilter" style="padding: 0.5rem; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--background); color: var(--text-main);">
+                <option value="All">All Status</option>
+                <option value="Placed">Placed</option>
+                <option value="Unplaced">Unplaced</option>
+              </select>
+            </div>
+          </div>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Roll No</th>
+                  <th>Name</th>
+                  <th>Branch</th>
+                  <th>CGPA</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="studentTableBody">
+                <tr><td colspan="6" style="text-align: center;">Loading students...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -403,17 +439,29 @@
       <div id="notice-section" class="content-view" style="display: none;">
         <h1 class="page-title">Notice Board</h1>
         <div class="content-section">
-          <h3>Announcements</h3>
-          <p style="color: var(--text-muted); margin-top: 1rem;">Publish announcements for students and companies.</p>
+          <div class="section-header">
+            <h3>Announcements</h3>
+            <button class="btn btn-primary" onclick="alert('Post Notice functionality coming soon')">Post Notice</button>
+          </div>
+          <div id="noticeBoardContainer" style="display: flex; flex-direction: column; gap: 1rem;">
+            <p style="text-align: center; color: var(--text-muted);">Loading notices...</p>
+          </div>
         </div>
       </div>
 
       <!-- Analytics Section -->
       <div id="analytics-section" class="content-view" style="display: none;">
-        <h1 class="page-title">Analytics</h1>
+        <h1 class="page-title">Placement Analytics</h1>
+        
+        <div class="stats-grid" id="analyticsStatsGrid">
+          <p style="text-align: center; color: var(--text-muted); grid-column: 1/-1;">Loading analytics...</p>
+        </div>
+
         <div class="content-section">
-          <h3>Placement Analytics</h3>
-          <p style="color: var(--text-muted); margin-top: 1rem;">View detailed analytics of placement statistics.</p>
+          <h3>Branch-wise Placement Statistics</h3>
+          <div style="height: 400px; width: 100%; margin-top: 1.5rem; display: flex; justify-content: center; align-items: center;">
+            <canvas id="branchPlacementChart"></canvas>
+          </div>
         </div>
       </div>
 
@@ -461,7 +509,7 @@
       document.getElementById('sidebar').classList.toggle('open');
     });
 
-    // Navigation Logic for SPA feel (Inlined to bypass cache)
+    // Navigation Logic for SPA feel
     document.addEventListener('DOMContentLoaded', () => {
       const navItems = document.querySelectorAll('.sidebar-nav .nav-item[data-target]');
       const contentViews = document.querySelectorAll('.content-view');
@@ -479,6 +527,15 @@
             const targetView = document.getElementById(targetId);
             if (targetView) {
               targetView.style.display = 'block';
+              
+              // Lazy load data based on section
+              if (targetId === 'students-section') {
+                loadStudents();
+              } else if (targetId === 'notice-section') {
+                loadNotices();
+              } else if (targetId === 'analytics-section') {
+                loadAnalytics();
+              }
             }
             
             if (window.innerWidth <= 768) {
@@ -488,40 +545,186 @@
         });
       }
 
-      // Create Drive Modal Logic
-      const createDriveBtn = document.getElementById('createDriveBtn');
-      const createDriveModal = document.getElementById('createDriveModal');
-      const closeModalBtn = document.getElementById('closeModalBtn');
-      const cancelBtn = document.getElementById('cancelBtn');
-      const createDriveForm = document.getElementById('createDriveForm');
+      // --- Student Database Logic ---
+      let allStudents = [];
+      const studentTableBody = document.getElementById('studentTableBody');
+      const studentSearch = document.getElementById('studentSearch');
+      const branchFilter = document.getElementById('branchFilter');
+      const placementFilter = document.getElementById('placementFilter');
 
-      if (createDriveBtn && createDriveModal) {
-        createDriveBtn.addEventListener('click', () => {
-          createDriveModal.style.display = 'flex';
+      async function loadStudents() {
+        if (allStudents.length > 0) return; // Already loaded
+        
+        try {
+          studentTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Loading students from MongoDB...</td></tr>';
+          const data = await window.apiFetch('/students');
+          allStudents = data;
+          renderStudents(allStudents);
+        } catch (error) {
+          studentTableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: red;">Failed to load students: ${error.message}</td></tr>`;
+        }
+      }
+
+      function renderStudents(students) {
+        if (!studentTableBody) return;
+        studentTableBody.innerHTML = '';
+        
+        if (students.length === 0) {
+           studentTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No students found matching criteria.</td></tr>';
+           return;
+        }
+
+        students.forEach(student => {
+          const statusBadgeClass = student.placementStatus === 'Placed' ? 'badge-success' : 'badge-warning';
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${student.rollNumber}</td>
+            <td><strong>${student.fullName}</strong></td>
+            <td>${student.branch}</td>
+            <td>${student.cgpa.toFixed(2)}</td>
+            <td><span class="badge ${statusBadgeClass}">${student.placementStatus}</span></td>
+            <td><button class="btn glass" onclick="alert('View full profile logic here')" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">View</button></td>
+          `;
+          studentTableBody.appendChild(tr);
+        });
+      }
+
+      function applyStudentFilters() {
+        const searchTerm = studentSearch.value.toLowerCase();
+        const branchVal = branchFilter.value;
+        const placementVal = placementFilter.value;
+
+        const filtered = allStudents.filter(s => {
+          const matchSearch = s.fullName.toLowerCase().includes(searchTerm) || s.rollNumber.toLowerCase().includes(searchTerm);
+          const matchBranch = branchVal === 'All' || s.branch === branchVal;
+          const matchPlacement = placementVal === 'All' || s.placementStatus === placementVal;
+          return matchSearch && matchBranch && matchPlacement;
         });
 
-        const closeModal = () => {
-          createDriveModal.style.display = 'none';
-          createDriveForm.reset();
-        };
+        renderStudents(filtered);
+      }
 
-        closeModalBtn.addEventListener('click', closeModal);
-        cancelBtn.addEventListener('click', closeModal);
+      if (studentSearch && branchFilter && placementFilter) {
+        studentSearch.addEventListener('input', applyStudentFilters);
+        branchFilter.addEventListener('change', applyStudentFilters);
+        placementFilter.addEventListener('change', applyStudentFilters);
+      }
 
-        createDriveForm.addEventListener('submit', (e) => {
-          e.preventDefault();
+      // --- Notices Logic ---
+      let noticesLoaded = false;
+      async function loadNotices() {
+        if (noticesLoaded) return;
+        const container = document.getElementById('noticeBoardContainer');
+        try {
+          const notices = await window.apiFetch('/notices');
+          container.innerHTML = '';
+          if(notices.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No notices found.</p>';
+            return;
+          }
+          notices.forEach(notice => {
+            const date = new Date(notice.createdAt).toLocaleDateString();
+            container.innerHTML += `
+              <div style="padding: 1.5rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); display: flex; gap: 1rem;">
+                <div style="font-size: 2rem;">${notice.isPinned ? '📌' : '📄'}</div>
+                <div style="flex: 1;">
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <h4 style="margin: 0 0 0.5rem 0; color: var(--text-main); font-size: 1.1rem;">${notice.title}</h4>
+                    <span class="badge badge-primary">${notice.category}</span>
+                  </div>
+                  <p style="color: var(--text-muted); margin-bottom: 0.5rem;">${notice.content}</p>
+                  <small style="color: var(--text-muted);">Posted on: ${date}</small>
+                </div>
+              </div>
+            `;
+          });
+          noticesLoaded = true;
+        } catch(error) {
+          container.innerHTML = `<p style="text-align: center; color: red;">Failed to load notices: ${error.message}</p>`;
+        }
+      }
+
+      // --- Analytics Logic ---
+      let analyticsLoaded = false;
+      async function loadAnalytics() {
+        if (analyticsLoaded) return;
+        try {
+          const stats = await window.apiFetch('/analytics');
           
-          // Get form values
-          const company = document.getElementById('companyName').value;
-          const role = document.getElementById('jobRole').value;
-          const pkg = document.getElementById('package').value;
-          const date = document.getElementById('driveDate').value;
+          // Render Stats Grid
+          const grid = document.getElementById('analyticsStatsGrid');
+          grid.innerHTML = `
+            <div class="stat-card">
+              <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">🎓</div>
+              <div class="stat-details">
+                <h4>Total Students</h4>
+                <div class="value">${stats.totalStudents}</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">✅</div>
+              <div class="stat-details">
+                <h4>Placed Students</h4>
+                <div class="value">${stats.placedStudents}</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">🏢</div>
+              <div class="stat-details">
+                <h4>Total Companies</h4>
+                <div class="value">${stats.totalCompanies}</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">🚀</div>
+              <div class="stat-details">
+                <h4>Active Drives</h4>
+                <div class="value">${stats.activeDrives}</div>
+              </div>
+            </div>
+          `;
 
-          // Optional: You could write JS here to add a new row to the table visually
+          // Render Chart
+          const ctx = document.getElementById('branchPlacementChart').getContext('2d');
           
-          alert(`Success: ${company} placement drive for ${role} has been posted!`);
-          closeModal();
-        });
+          const labels = stats.branchStats.map(b => b._id);
+          const totalData = stats.branchStats.map(b => b.count);
+          const placedData = stats.branchStats.map(b => b.placed);
+
+          new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: labels,
+              datasets: [
+                {
+                  label: 'Total Students',
+                  data: totalData,
+                  backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                  borderColor: 'rgb(59, 130, 246)',
+                  borderWidth: 1
+                },
+                {
+                  label: 'Placed Students',
+                  data: placedData,
+                  backgroundColor: 'rgba(16, 185, 129, 0.5)',
+                  borderColor: 'rgb(16, 185, 129)',
+                  borderWidth: 1
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+              }
+            }
+          });
+
+          analyticsLoaded = true;
+        } catch(error) {
+          document.getElementById('analyticsStatsGrid').innerHTML = `<p style="text-align: center; color: red; grid-column: 1/-1;">Failed to load analytics: ${error.message}</p>`;
+        }
       }
     });
   </script>

@@ -10,6 +10,7 @@ const companyRoutes = require('./routes/companyRoutes');
 const driveRoutes = require('./routes/driveRoutes');
 const applicationRoutes = require('./routes/applicationRoutes');
 const noticeRoutes = require('./routes/noticeRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use('/api/companies', companyRoutes);
 app.use('/api/drives', driveRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/notices', noticeRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 const PORT = process.env.PORT || 5000;
 

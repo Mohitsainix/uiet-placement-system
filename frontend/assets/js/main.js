@@ -1,3 +1,37 @@
+// API Config
+const API_BASE_URL = 'http://localhost:5000/api';
+
+// Global API Fetch Utility
+window.apiFetch = async (endpoint, options = {}) => {
+  try {
+    const url = `${API_BASE_URL}${endpoint}`;
+    const defaultHeaders = {
+      'Content-Type': 'application/json',
+      // In a real app with JWT, you would add: 'Authorization': `Bearer ${localStorage.getItem('token')}`
+    };
+    
+    const config = {
+      ...options,
+      headers: {
+        ...defaultHeaders,
+        ...options.headers,
+      },
+    };
+
+    const response = await fetch(url, config);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'API Error');
+    }
+
+    return data;
+  } catch (error) {
+    console.error('API Fetch Error:', error);
+    throw error;
+  }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
   const themeToggle = document.getElementById('theme-toggle');
   

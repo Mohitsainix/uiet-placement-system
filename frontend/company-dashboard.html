@@ -178,14 +178,8 @@
                   <th>Action</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Software Development Engineer (SDE-1)</strong></td>
-                  <td>Bangalore, Hyderabad, Remote</td>
-                  <td>44.0 LPA</td>
-                  <td>124</td>
-                  <td><button class="btn glass edit-drive-btn" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Edit / Add Position</button></td>
-                </tr>
+              <tbody id="drivesTableBody">
+                <tr><td colspan="5" style="text-align: center;">Loading drives...</td></tr>
               </tbody>
             </table>
           </div>
@@ -223,22 +217,7 @@
                 </tr>
               </thead>
               <tbody id="applicantsTableBody">
-                <tr>
-                  <td>Rahul Sharma</td>
-                  <td>CSE</td>
-                  <td>8.5</td>
-                  <td>SDE-1</td>
-                  <td><span class="badge badge-primary">Applied</span></td>
-                  <td><a href="#" class="view-resume-btn" style="color: var(--primary);">View</a></td>
-                </tr>
-                <tr>
-                  <td>Priya Singh</td>
-                  <td>ECE</td>
-                  <td>9.1</td>
-                  <td>SDE-1</td>
-                  <td><span class="badge badge-success" style="background: rgba(16,185,129,0.1); color: #10b981;">Shortlisted</span></td>
-                  <td><a href="#" class="view-resume-btn" style="color: var(--primary);">View</a></td>
-                </tr>
+                <tr><td colspan="6" style="text-align: center;">Loading applicants...</td></tr>
               </tbody>
             </table>
           </div>
@@ -350,6 +329,7 @@
     });
 
     document.addEventListener('DOMContentLoaded', () => {
+      // Company Navigation Logic
       const navItems = document.querySelectorAll('.sidebar-nav .nav-item[data-target]');
       const contentViews = document.querySelectorAll('.content-view');
 
@@ -357,7 +337,6 @@
         navItems.forEach(item => {
           item.addEventListener('click', (e) => {
             e.preventDefault();
-            
             navItems.forEach(nav => nav.classList.remove('active'));
             contentViews.forEach(view => view.style.display = 'none');
             
@@ -366,6 +345,8 @@
             const targetView = document.getElementById(targetId);
             if (targetView) {
               targetView.style.display = 'block';
+              if (targetId === 'drives-section') loadDrives();
+              if (targetId === 'applicants-section') loadApplicants();
             }
             
             if (window.innerWidth <= 768) {

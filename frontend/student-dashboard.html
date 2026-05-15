@@ -173,7 +173,9 @@
         <h1 class="page-title">Jobs Board</h1>
         <div class="content-section">
           <h3>All Available Opportunities</h3>
-          <p style="color: var(--text-muted); margin-top: 1rem;">Browse through all open placement drives and internships.</p>
+          <div id="studentJobsContainer" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+             <p style="color: var(--text-muted); text-align: center;">Loading jobs...</p>
+          </div>
         </div>
       </div>
 
@@ -182,7 +184,20 @@
         <h1 class="page-title">My Applications</h1>
         <div class="content-section">
           <h3>Application Status</h3>
-          <p style="color: var(--text-muted); margin-top: 1rem;">Track the status of the jobs you have applied to.</p>
+          <div style="overflow-x: auto; margin-top: 1rem;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Company</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="studentAppsBody">
+                <tr><td colspan="3" style="text-align: center;">Loading applications...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -200,22 +215,137 @@
 
   <script src="assets/js/main.js"></script>
   <script>
-    document.getElementById('mobile-toggle').addEventListener('click', () => {
-      document.getElementById('sidebar').classList.toggle('open');
-    });
+    document.addEventListener('DOMContentLoaded', () => {
+      // Mobile sidebar toggle
+      const mobileToggle = document.getElementById('mobile-toggle');
+      if(mobileToggle) {
+        mobileToggle.addEventListener('click', () => {
+          document.getElementById('sidebar').classList.toggle('open');
+        });
+      }
 
-    // Handle resume upload display
-    const resumeUpload = document.getElementById('resumeUpload');
-    const uploadFileName = document.getElementById('uploadFileName');
-    if (resumeUpload && uploadFileName) {
-      resumeUpload.addEventListener('change', function(e) {
-        if (this.files && this.files[0]) {
-          uploadFileName.textContent = 'Selected: ' + this.files[0].name;
-        } else {
-          uploadFileName.textContent = '';
+      // Navigation Logic with Lazy Loading
+      const navItems = document.querySelectorAll('.sidebar-nav .nav-item[data-target]');
+      const contentViews = document.querySelectorAll('.content-view');
+
+      if (navItems.length > 0 && contentViews.length > 0) {
+        navItems.forEach(item => {
+          item.addEventListener('click', (e) => {
+            e.preventDefault();
+            navItems.forEach(nav => nav.classList.remove('active'));
+            contentViews.forEach(view => view.style.display = 'none');
+            
+            item.classList.add('active');
+            const targetId = item.getAttribute('data-target') + '-section';
+            const targetView = document.getElementById(targetId);
+            if (targetView) {
+              targetView.style.display = 'block';
+              if(targetId === 'jobs-section') loadJobs();
+              if(targetId === 'applications-section') loadApplications();
+            }
+            
+            if (window.innerWidth <= 768) {
+              document.getElementById('sidebar').classList.remove('open');
+            }
+          });
+        });
+      }
+
+      // --- Global state for demo ---
+      let currentStudentId = null;
+
+      async function getMyId() {
+        if(currentStudentId) return currentStudentId;
+        const students = await window.apiFetch('/students');
+        if(students.length > 0) currentStudentId = students[0]._id;
+        return currentStudentId;
+      }
+
+      // --- Jobs Logic ---
+      let jobsLoaded = false;
+      async function loadJobs() {
+        if(jobsLoaded) return;
+        const container = document.getElementById('studentJobsContainer');
+        try {
+          const drives = await window.apiFetch('/drives');
+          container.innerHTML = '';
+          if(drives.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No open jobs at the moment.</p>';
+            return;
+          }
+
+          drives.forEach(drive => {
+            const companyName = drive.companyId ? drive.companyId.companyName : 'Unknown';
+            container.innerHTML += `
+              <div class="job-card" style="padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <div>
+                    <h4 style="margin: 0; color: var(--text-main); font-size: 1.1rem;">${drive.jobRole}</h4>
+                    <p style="color: var(--primary); margin: 0.25rem 0;">${companyName}</p>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Package: ${drive.packageLPA} LPA | Eligibility: ${drive.eligibilityCriteria || 'N/A'}</p>
+                  </div>
+                  <button class="btn btn-primary" onclick="applyForDrive('${drive._id}')" style="padding: 0.5rem 1rem;">Apply Now</button>
+                </div>
+              </div>
+            `;
+          });
+          jobsLoaded = true;
+        } catch(err) {
+          container.innerHTML = `<p style="color: red;">Error: ${err.message}</p>`;
         }
-      });
-    }
+      }
+
+      window.applyForDrive = async (driveId) => {
+        try {
+          const sId = await getMyId();
+          if(!sId) {
+             alert('Error: Could not identify current student user.');
+             return;
+          }
+          await window.apiFetch('/applications', {
+            method: 'POST',
+            body: JSON.stringify({ studentId: sId, driveId })
+          });
+          alert('Successfully applied to the drive!');
+          appsLoaded = false;
+        } catch(err) {
+          alert('Application Failed: ' + err.message);
+        }
+      };
+
+      // --- Applications Logic ---
+      let appsLoaded = false;
+      async function loadApplications() {
+        if(appsLoaded) return;
+        const tbody = document.getElementById('studentAppsBody');
+        try {
+          const sId = await getMyId();
+          const allApps = await window.apiFetch('/applications');
+          const myApps = allApps.filter(a => a.studentId && a.studentId._id === sId);
+
+          tbody.innerHTML = '';
+          if(myApps.length === 0) {
+             tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">No applications found.</td></tr>';
+             return;
+          }
+
+          myApps.forEach(app => {
+            const companyName = (app.driveId && app.driveId.companyId) ? app.driveId.companyId.companyName : 'Unknown';
+            const role = app.driveId ? app.driveId.jobRole : 'Unknown';
+            tbody.innerHTML += `
+              <tr>
+                <td><strong>${companyName}</strong></td>
+                <td>${role}</td>
+                <td><span class="badge badge-primary">${app.status}</span></td>
+              </tr>
+            `;
+          });
+          appsLoaded = true;
+        } catch(err) {
+          tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: red;">Error: ${err.message}</td></tr>`;
+        }
+      }
+    });
   </script>
 </body>
 </html>
