@@ -327,7 +327,7 @@
         <div class="content-section">
           <div class="section-header">
             <h3>Recent Placement Drives</h3>
-            <button class="btn btn-primary">Create New Drive</button>
+            <button id="createDriveBtn" class="btn btn-primary">Create New Drive</button>
           </div>
           <div style="overflow-x: auto;">
             <table>
@@ -420,6 +420,40 @@
     </div>
   </main>
 
+  <!-- Create Drive Modal -->
+  <div id="createDriveModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+    <div style="background: var(--surface); padding: 2rem; border-radius: var(--radius-lg); width: 100%; max-width: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3 style="margin: 0; color: var(--text-main);">Create New Placement Drive</h3>
+        <button id="closeModalBtn" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+      </div>
+      <form id="createDriveForm">
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Company Name</label>
+          <input type="text" id="companyName" required style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);">
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Role</label>
+          <input type="text" id="jobRole" required style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);">
+        </div>
+        <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+          <div style="flex: 1;">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Package (LPA)</label>
+            <input type="number" id="package" step="0.1" required style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);">
+          </div>
+          <div style="flex: 1;">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Drive Date</label>
+            <input type="date" id="driveDate" required style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);">
+          </div>
+        </div>
+        <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem;">
+          <button type="button" id="cancelBtn" class="btn glass" style="padding: 0.75rem 1.5rem;">Cancel</button>
+          <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem;">Post Drive</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="assets/js/main.js"></script>
   <script>
     // Mobile sidebar toggle
@@ -451,6 +485,42 @@
               document.getElementById('sidebar').classList.remove('open');
             }
           });
+        });
+      }
+
+      // Create Drive Modal Logic
+      const createDriveBtn = document.getElementById('createDriveBtn');
+      const createDriveModal = document.getElementById('createDriveModal');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+      const cancelBtn = document.getElementById('cancelBtn');
+      const createDriveForm = document.getElementById('createDriveForm');
+
+      if (createDriveBtn && createDriveModal) {
+        createDriveBtn.addEventListener('click', () => {
+          createDriveModal.style.display = 'flex';
+        });
+
+        const closeModal = () => {
+          createDriveModal.style.display = 'none';
+          createDriveForm.reset();
+        };
+
+        closeModalBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+
+        createDriveForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          
+          // Get form values
+          const company = document.getElementById('companyName').value;
+          const role = document.getElementById('jobRole').value;
+          const pkg = document.getElementById('package').value;
+          const date = document.getElementById('driveDate').value;
+
+          // Optional: You could write JS here to add a new row to the table visually
+          
+          alert(`Success: ${company} placement drive for ${role} has been posted!`);
+          closeModal();
         });
       }
     });

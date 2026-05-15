@@ -160,7 +160,11 @@
           </div>
           <h3>Resume & Documents</h3>
           <p style="color: var(--text-muted); margin-top: 1rem;">Upload and manage your resumes, cover letters, and certificates here.</p>
-          <button class="btn btn-primary" style="margin-top: 1rem;">Upload Resume</button>
+          <input type="file" id="resumeUpload" style="display: none;" accept=".pdf,.doc,.docx">
+          <div style="display: flex; align-items: center; margin-top: 1rem;">
+            <button class="btn btn-primary" onclick="document.getElementById('resumeUpload').click()">Upload Resume</button>
+            <span id="uploadFileName" style="margin-left: 1rem; color: var(--text-muted); font-size: 0.9rem;"></span>
+          </div>
         </div>
       </div>
 
@@ -199,6 +203,19 @@
     document.getElementById('mobile-toggle').addEventListener('click', () => {
       document.getElementById('sidebar').classList.toggle('open');
     });
+
+    // Handle resume upload display
+    const resumeUpload = document.getElementById('resumeUpload');
+    const uploadFileName = document.getElementById('uploadFileName');
+    if (resumeUpload && uploadFileName) {
+      resumeUpload.addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+          uploadFileName.textContent = 'Selected: ' + this.files[0].name;
+        } else {
+          uploadFileName.textContent = '';
+        }
+      });
+    }
   </script>
 </body>
 </html>
