@@ -457,6 +457,96 @@
         appRoleFilter.addEventListener('change', applyApplicantsFilters);
         appStatusFilter.addEventListener('change', applyApplicantsFilters);
       }
+
+      // Fetch Drives Logic
+      let drivesLoaded = false;
+      window.loadDrives = async function() {
+        if(drivesLoaded) return;
+        const tbody = document.getElementById('drivesTableBody');
+        if(!tbody) return;
+        try {
+          const drives = await window.apiFetch('/drives');
+          tbody.innerHTML = '';
+          if(drives.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No drives found.</td></tr>';
+            return;
+          }
+          drives.forEach(drive => {
+            tbody.innerHTML += `
+              <tr>
+                <td><strong>${drive.jobRole}</strong></td>
+                <td>${drive.branchEligibility.join(', ')}</td>
+                <td>${drive.packageLPA} LPA</td>
+                <td><span class="badge badge-primary">${drive.status}</span></td>
+                <td><button class="btn glass" onclick="alert('Edit drive ${drive._id}')" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Edit</button></td>
+              </tr>
+            `;
+          });
+          drivesLoaded = true;
+        } catch(error) {
+           tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">Error: ${error.message}</td></tr>`;
+        }
+      }
+
+      // Fetch Applicants Logic
+      let applicantsLoaded = false;
+      window.allApplicants = []; // for filtering
+      window.loadApplicants = async function() {
+        if(applicantsLoaded) return;
+        const tbody = document.getElementById('applicantsTableBody');
+        if(!tbody) return;
+        try {
+          const apps = await window.apiFetch('/applications');
+          window.allApplicants = apps;
+          renderApplicants(apps);
+          applicantsLoaded = true;
+        } catch(error) {
+           tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: red;">Error: ${error.message}</td></tr>`;
+        }
+      }
+
+      function renderApplicants(apps) {
+        const tbody = document.getElementById('applicantsTableBody');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        if(apps.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No applicants found.</td></tr>';
+          return;
+        }
+        apps.forEach(app => {
+          const s = app.studentId;
+          const role = app.driveId ? app.driveId.jobRole : 'Unknown';
+          tbody.innerHTML += `
+            <tr>
+              <td>${s ? s.fullName : 'N/A'}</td>
+              <td>${s ? s.branch : 'N/A'}</td>
+              <td>${s ? s.cgpa : 'N/A'}</td>
+              <td>${role}</td>
+              <td><span class="badge badge-primary">${app.status}</span></td>
+              <td>
+                <button class="btn glass" onclick="updateAppStatus('${app._id}')" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Update Status</button>
+              </td>
+            </tr>
+          `;
+        });
+      }
+
+      window.updateAppStatus = async (appId) => {
+        const newStatus = prompt('Enter new status (Shortlisted, Selected, Rejected):');
+        if(!newStatus) return;
+        try {
+          await window.apiFetch('/applications/' + appId, {
+            method: 'PUT',
+            body: JSON.stringify({ status: newStatus })
+          });
+          alert('Application status updated!');
+          applicantsLoaded = false; // force reload
+          loadApplicants();
+        } catch(err) {
+          alert('Failed to update: ' + err.message);
+        }
+      };
+
     });
   </script>
 </body>
