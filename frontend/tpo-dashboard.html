@@ -1185,32 +1185,7 @@
           container.innerHTML = `<p style="text-align: center; color: red;">Failed to load notices: ${error.message}</p>`;
         }
       }
-        try {
-          tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Loading companies...</td></tr>';
-          const companies = await window.apiFetch('/companies');
-          tbody.innerHTML = '';
-          
-          if(companies.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No companies found.</td></tr>';
-            return;
-          }
 
-          companies.reverse().forEach(comp => {
-            const industry = comp.industry || 'N/A';
-            const website = comp.website ? `<a href="${comp.website}" target="_blank" style="color:var(--primary);text-decoration:none;">${comp.website}</a>` : 'N/A';
-            tbody.innerHTML += `
-              <tr>
-                <td><strong>${comp.companyName}</strong></td>
-                <td>${industry}</td>
-                <td>${website}</td>
-                <td><button class="btn glass" onclick="alert('Edit company functionality')" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Edit</button></td>
-              </tr>
-            `;
-          });
-        } catch (error) {
-          tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: red;">Failed to load companies: ${error.message}</td></tr>`;
-        }
-      }
 
       // Initial load for dashboard drives
       loadDrives(true);
