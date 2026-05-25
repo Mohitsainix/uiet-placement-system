@@ -1,5 +1,5 @@
 // API Config
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'http://localhost:5000/api';
 
 // Global API Fetch Utility
 window.apiFetch = async (endpoint, options = {}) => {
@@ -19,6 +19,13 @@ window.apiFetch = async (endpoint, options = {}) => {
     };
 
     const response = await fetch(url, config);
+    
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      const text = await response.text();
+      throw new Error(`API Endpoint not found or backend is not running. Response: ${text.substring(0, 50)}...`);
+    }
+
     const data = await response.json();
 
     if (!response.ok) {
@@ -27,6 +34,10 @@ window.apiFetch = async (endpoint, options = {}) => {
 
     return data;
   } catch (error) {
+    if (error.message === 'Failed to fetch') {
+      console.error('API Fetch Error: Backend server is not reachable. Ensure you ran `npm start` and are accessing http://localhost:5000');
+      throw new Error('Backend server is not running or unreachable.');
+    }
     console.error('API Fetch Error:', error);
     throw error;
   }
