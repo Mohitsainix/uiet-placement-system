@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = document.getElementById('password').value;
         const role = document.getElementById('role').value;
 
-        const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+        const endpoint = isLogin ? '/auth/login' : '/auth/register';
         const payload = isLogin ? { email, password } : { email, password, role };
 
         try {
