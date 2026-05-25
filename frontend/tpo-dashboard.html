@@ -454,7 +454,7 @@
         <div class="content-section">
           <div class="section-header">
             <h3>Announcements</h3>
-            <button class="btn btn-primary" onclick="alert('Post Notice functionality coming soon')">Post Notice</button>
+            <button class="btn btn-primary" onclick="window.openPostNoticeModal()">Post Notice</button>
           </div>
           <div id="noticeBoardContainer" style="display: flex; flex-direction: column; gap: 1rem;">
             <p style="text-align: center; color: var(--text-muted);">Loading notices...</p>
@@ -577,6 +577,45 @@
             <button type="button" id="cancelEditDriveBtn" class="btn glass" style="padding: 0.75rem 1.5rem;">Cancel</button>
             <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem;">Save Changes</button>
           </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Post Notice Modal -->
+  <div id="postNoticeModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+    <div style="background: var(--surface); padding: 2rem; border-radius: var(--radius-lg); width: 100%; max-width: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3 style="margin: 0; color: var(--text-main);">Post New Notice</h3>
+        <button id="closeNoticeModalBtn" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+      </div>
+      <form id="postNoticeForm">
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Title</label>
+          <input type="text" id="noticeTitle" required style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);">
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Category</label>
+          <select id="noticeCategory" required style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);">
+            <option value="Important Announcement">Important Announcement</option>
+            <option value="Exam Notice">Exam Notice</option>
+            <option value="Placement Drive">Placement Drive</option>
+            <option value="Interview Schedule">Interview Schedule</option>
+            <option value="Holiday Notice">Holiday Notice</option>
+            <option value="Result Notice">Result Notice</option>
+          </select>
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Content</label>
+          <textarea id="noticeContent" rows="4" required style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main); font-family: inherit; resize: vertical;"></textarea>
+        </div>
+        <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+          <input type="checkbox" id="noticePinned" style="width: auto;">
+          <label for="noticePinned" style="color: var(--text-main);">Pin this notice to the top</label>
+        </div>
+        <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem;">
+          <button type="button" id="cancelNoticeBtn" class="btn glass" style="padding: 0.75rem 1.5rem;">Cancel</button>
+          <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem;">Post Notice</button>
         </div>
       </form>
     </div>
@@ -1038,6 +1077,114 @@
       async function loadCompanies() {
         const tbody = document.getElementById('companiesTableBody');
         if (!tbody) return;
+        try {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Loading companies...</td></tr>';
+          const companies = await window.apiFetch('/companies');
+          tbody.innerHTML = '';
+          
+          if(companies.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No companies found.</td></tr>';
+            return;
+          }
+
+          companies.forEach(company => {
+            const industry = company.industry || 'IT';
+            const website = company.website || '#';
+            tbody.innerHTML += `
+              <tr>
+                <td><strong>${company.companyName}</strong></td>
+                <td>${industry}</td>
+                <td><a href="${website}" target="_blank" style="color: var(--primary);">${website}</a></td>
+                <td><button class="btn glass" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">View</button></td>
+              </tr>
+            `;
+          });
+        } catch (error) {
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: red;">Failed to load companies: ${error.message}</td></tr>`;
+        }
+      }
+
+      // --- Notice Board Logic ---
+      const postNoticeModal = document.getElementById('postNoticeModal');
+      const closeNoticeModalBtn = document.getElementById('closeNoticeModalBtn');
+      const cancelNoticeBtn = document.getElementById('cancelNoticeBtn');
+      const postNoticeForm = document.getElementById('postNoticeForm');
+      
+      window.openPostNoticeModal = () => {
+         if(postNoticeModal) postNoticeModal.style.display = 'flex';
+      };
+
+      if(postNoticeModal) {
+         const closeNoticeModal = () => {
+           postNoticeModal.style.display = 'none';
+           postNoticeForm.reset();
+         };
+
+         closeNoticeModalBtn.addEventListener('click', closeNoticeModal);
+         cancelNoticeBtn.addEventListener('click', closeNoticeModal);
+
+         postNoticeForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('noticeTitle').value;
+            const category = document.getElementById('noticeCategory').value;
+            const content = document.getElementById('noticeContent').value;
+            const isPinned = document.getElementById('noticePinned').checked;
+
+            try {
+               const submitBtn = postNoticeForm.querySelector('button[type="submit"]');
+               submitBtn.disabled = true;
+               submitBtn.textContent = 'Posting...';
+
+               await window.apiFetch('/notices', {
+                 method: 'POST',
+                 body: JSON.stringify({ title, category, content, isPinned })
+               });
+               
+               alert('Notice posted successfully!');
+               closeNoticeModal();
+               loadNotices();
+            } catch(err) {
+               alert('Failed to post notice: ' + err.message);
+            } finally {
+               const submitBtn = postNoticeForm.querySelector('button[type="submit"]');
+               submitBtn.disabled = false;
+               submitBtn.textContent = 'Post Notice';
+            }
+         });
+      }
+
+      async function loadNotices() {
+        const container = document.getElementById('noticeBoardContainer');
+        if (!container) return;
+        try {
+          container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Loading notices...</p>';
+          const notices = await window.apiFetch('/notices');
+          container.innerHTML = '';
+          
+          if(notices.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No notices posted yet.</p>';
+            return;
+          }
+
+          notices.forEach(notice => {
+            const dateStr = new Date(notice.createdAt).toLocaleDateString();
+            const badgeClass = notice.isPinned ? 'badge-primary' : 'badge-secondary';
+            const pinIcon = notice.isPinned ? '📌 ' : '';
+            container.innerHTML += `
+              <div style="background: var(--surface); padding: 1.5rem; border-radius: var(--radius-md); border-left: 4px solid var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                  <h4 style="margin: 0; color: var(--text-main);">${pinIcon}${notice.title}</h4>
+                  <span class="badge ${badgeClass}" style="font-size: 0.75rem; padding: 0.2rem 0.5rem;">${notice.category}</span>
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0; margin-bottom: 1rem;">Posted on: ${dateStr}</p>
+                <p style="color: var(--text-main); margin: 0; line-height: 1.5;">${notice.content.replace(/\n/g, '<br>')}</p>
+              </div>
+            `;
+          });
+        } catch (error) {
+          container.innerHTML = `<p style="text-align: center; color: red;">Failed to load notices: ${error.message}</p>`;
+        }
+      }
         try {
           tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Loading companies...</td></tr>';
           const companies = await window.apiFetch('/companies');
