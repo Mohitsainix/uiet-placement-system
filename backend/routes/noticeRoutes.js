@@ -12,4 +12,22 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Create a new notice
+router.post('/', async (req, res) => {
+    try {
+        const { title, content, category, isPinned, expiryDate } = req.body;
+        const newNotice = new Notice({
+            title,
+            content,
+            category: category || 'Important Announcement',
+            isPinned: isPinned || false,
+            expiryDate
+        });
+        await newNotice.save();
+        res.status(201).json(newNotice);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 module.exports = router;
