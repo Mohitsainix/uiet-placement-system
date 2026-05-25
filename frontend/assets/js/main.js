@@ -12,6 +12,7 @@ window.apiFetch = async (endpoint, options = {}) => {
     
     const config = {
       ...options,
+      credentials: options.credentials || 'include',
       headers: {
         ...defaultHeaders,
         ...options.headers,

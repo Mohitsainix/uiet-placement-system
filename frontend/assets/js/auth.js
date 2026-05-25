@@ -44,24 +44,16 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.textContent = 'Please wait...';
             submitBtn.disabled = true;
 
-            // Adjust URL for local testing without server, or connect to actual backend
-            // const response = await fetch(`http://localhost:5000${endpoint}`, {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify(payload)
-            // });
+            // Connect to actual backend API
+            const data = await window.apiFetch(endpoint, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
 
-            // const data = await response.json();
-
-            // if (!response.ok) {
-            //     throw new Error(data.message || 'Authentication failed');
-            // }
-
-            // Mock successful login for frontend demonstration
-            console.log("Mocking successful auth request:", payload);
+            console.log("Auth success:", data);
             
-            // Redirect based on selected role
-            const userRole = role;
+            // Redirect based on the authenticated user's role
+            const userRole = data.role || role;
             
             if (userRole === 'admin') {
                 window.location.href = 'tpo-dashboard.html';
