@@ -12,6 +12,8 @@ const driveSchema = new mongoose.Schema({
     interviewDate: { type: Date },
     numberOfOpenings: { type: Number },
     requiredSkills: [{ type: String }],
+    eligibilityLink: { type: String },
+    applyLink: { type: String },
     status: { type: String, enum: ['Active', 'Upcoming', 'Completed'], default: 'Active' }
 }, { timestamps: true });
 

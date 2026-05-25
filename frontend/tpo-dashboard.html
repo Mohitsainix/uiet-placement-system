@@ -507,6 +507,14 @@
             <input type="date" id="driveDate" required style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);">
           </div>
         </div>
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Eligibility Link</label>
+          <input type="url" id="eligibilityLink" style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);" placeholder="e.g. https://company.com/eligibility">
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Apply Link</label>
+          <input type="url" id="applyLink" style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);" placeholder="e.g. https://company.com/apply">
+        </div>
         <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem;">
           <button type="button" id="cancelBtn" class="btn glass" style="padding: 0.75rem 1.5rem;">Cancel</button>
           <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem;">Post Drive</button>
@@ -570,6 +578,14 @@
             <option value="Upcoming">Upcoming</option>
             <option value="Completed">Completed</option>
           </select>
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Eligibility Link</label>
+          <input type="url" id="editEligibilityLink" style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);" placeholder="e.g. https://company.com/eligibility">
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Apply Link</label>
+          <input type="url" id="editApplyLink" style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);" placeholder="e.g. https://company.com/apply">
         </div>
         <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
           <button type="button" id="deleteDriveBtn" class="btn" style="background-color: #ef4444; color: white; padding: 0.75rem 1.5rem;">Delete</button>
@@ -878,6 +894,8 @@
           const jobRole = document.getElementById('jobRole').value;
           const packageLPA = document.getElementById('package').value;
           const driveDate = document.getElementById('driveDate').value;
+          const eligibilityLink = document.getElementById('eligibilityLink').value;
+          const applyLink = document.getElementById('applyLink').value;
 
           try {
             const submitBtn = createDriveForm.querySelector('button[type="submit"]');
@@ -886,7 +904,7 @@
 
             await window.apiFetch('/drives', {
               method: 'POST',
-              body: JSON.stringify({ companyName, jobRole, packageLPA, driveDate })
+              body: JSON.stringify({ companyName, jobRole, packageLPA, driveDate, eligibilityLink, applyLink })
             });
 
             alert('Placement Drive Created Successfully!');
@@ -975,6 +993,8 @@
           const packageLPA = document.getElementById('editPackage').value;
           const driveDate = document.getElementById('editDriveDate').value;
           const status = document.getElementById('editDriveStatus').value;
+          const eligibilityLink = document.getElementById('editEligibilityLink').value;
+          const applyLink = document.getElementById('editApplyLink').value;
 
           try {
             const submitBtn = editDriveForm.querySelector('button[type="submit"]');
@@ -983,7 +1003,7 @@
 
             await window.apiFetch('/drives/' + driveId, {
               method: 'PUT',
-              body: JSON.stringify({ jobRole, packageLPA, lastDate: driveDate, status })
+              body: JSON.stringify({ jobRole, packageLPA, lastDate: driveDate, status, eligibilityLink, applyLink })
             });
 
             alert('Drive Updated Successfully!');
@@ -1031,6 +1051,8 @@
          document.getElementById('editPackage').value = drive.packageLPA || '';
          document.getElementById('editDriveDate').value = drive.lastDate ? new Date(drive.lastDate).toISOString().split('T')[0] : '';
          document.getElementById('editDriveStatus').value = drive.status || 'Active';
+         document.getElementById('editEligibilityLink').value = drive.eligibilityLink || '';
+         document.getElementById('editApplyLink').value = drive.applyLink || '';
          document.getElementById('editDriveModal').style.display = 'flex';
       };
 

@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
 // Create a new drive
 router.post('/', async (req, res) => {
     try {
-        const { companyName, jobRole, packageLPA, driveDate } = req.body;
+        const { companyName, jobRole, packageLPA, driveDate, eligibilityLink, applyLink } = req.body;
         
         const User = require('../models/User');
         const Company = require('../models/Company');
@@ -36,7 +36,9 @@ router.post('/', async (req, res) => {
             companyId: company._id,
             jobRole,
             packageLPA,
-            lastDate: driveDate
+            lastDate: driveDate,
+            eligibilityLink,
+            applyLink
         });
         
         await newDrive.save();
@@ -59,7 +61,7 @@ router.get('/:id', async (req, res) => {
 // Update drive by ID
 router.put('/:id', async (req, res) => {
     try {
-        const { jobRole, packageLPA, lastDate, status } = req.body;
+        const { jobRole, packageLPA, lastDate, status, eligibilityLink, applyLink } = req.body;
         const drive = await Drive.findById(req.params.id);
         
         if (!drive) {
@@ -70,6 +72,8 @@ router.put('/:id', async (req, res) => {
         if (packageLPA !== undefined) drive.packageLPA = packageLPA;
         if (lastDate !== undefined) drive.lastDate = lastDate;
         if (status !== undefined) drive.status = status;
+        if (eligibilityLink !== undefined) drive.eligibilityLink = eligibilityLink;
+        if (applyLink !== undefined) drive.applyLink = applyLink;
         
         await drive.save();
         res.json(drive);
