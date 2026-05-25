@@ -12,4 +12,28 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Create a new company
+router.post('/', async (req, res) => {
+    try {
+        const { companyName, industry, website, description } = req.body;
+        
+        const User = require('../models/User');
+        let user = await User.findOne({ role: 'company' });
+        if (!user) user = await User.findOne();
+        
+        const company = new Company({
+            companyName,
+            industry,
+            website,
+            description,
+            userId: user ? user._id : null
+        });
+        
+        await company.save();
+        res.status(201).json(company);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 module.exports = router;

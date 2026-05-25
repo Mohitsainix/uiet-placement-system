@@ -328,7 +328,7 @@
         <div class="content-section">
           <div class="section-header">
             <h3>Recent Placement Drives</h3>
-            <button id="createDriveBtn" class="btn btn-primary">Create New Drive</button>
+            <button class="btn btn-primary createDriveBtnCls">Create New Drive</button>
           </div>
           <div style="overflow-x: auto;">
             <table>
@@ -342,31 +342,8 @@
                   <th>Action</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td><strong>TCS Digital</strong></td>
-                  <td>Software Engineer</td>
-                  <td>7.0</td>
-                  <td>Oct 15, 2026</td>
-                  <td><span class="badge badge-success">Completed</span></td>
-                  <td><button class="btn glass" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">View</button></td>
-                </tr>
-                <tr>
-                  <td><strong>Infosys</strong></td>
-                  <td>Systems Engineer</td>
-                  <td>3.6</td>
-                  <td>Oct 20, 2026</td>
-                  <td><span class="badge badge-warning">Active</span></td>
-                  <td><button class="btn glass" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">View</button></td>
-                </tr>
-                <tr>
-                  <td><strong>Amazon</strong></td>
-                  <td>SDE - 1</td>
-                  <td>44.0</td>
-                  <td>Nov 05, 2026</td>
-                  <td><span class="badge badge-primary">Upcoming</span></td>
-                  <td><button class="btn glass" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">View</button></td>
-                </tr>
+              <tbody id="dashboardDrivesBody">
+                <tr><td colspan="6" style="text-align: center;">Loading recent drives...</td></tr>
               </tbody>
             </table>
           </div>
@@ -421,8 +398,25 @@
       <div id="companies-section" class="content-view" style="display: none;">
         <h1 class="page-title">Companies</h1>
         <div class="content-section">
-          <h3>Partner Companies</h3>
-          <p style="color: var(--text-muted); margin-top: 1rem;">Manage partner companies and their profiles.</p>
+          <div class="section-header">
+            <h3>Partner Companies</h3>
+            <button id="addCompanyBtn" class="btn btn-primary">Add Company</button>
+          </div>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Company Name</th>
+                  <th>Industry</th>
+                  <th>Website</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="companiesTableBody">
+                <tr><td colspan="4" style="text-align: center;">Loading companies...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -430,8 +424,27 @@
       <div id="drives-section" class="content-view" style="display: none;">
         <h1 class="page-title">Placement Drives</h1>
         <div class="content-section">
-          <h3>Manage Drives</h3>
-          <p style="color: var(--text-muted); margin-top: 1rem;">Create and manage all placement drives.</p>
+          <div class="section-header">
+            <h3>Manage Drives</h3>
+            <button class="btn btn-primary createDriveBtnCls">Create New Drive</button>
+          </div>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Company</th>
+                  <th>Role</th>
+                  <th>Package (LPA)</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="drivesTableBody">
+                <tr><td colspan="6" style="text-align: center;">Loading drives...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -501,6 +514,33 @@
       </form>
     </div>
   </div>
+  <!-- Add Company Modal -->
+  <div id="addCompanyModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+    <div style="background: var(--surface); padding: 2rem; border-radius: var(--radius-lg); width: 100%; max-width: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3 style="margin: 0; color: var(--text-main);">Add New Company</h3>
+        <button id="closeCompanyModalBtn" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+      </div>
+      <form id="addCompanyForm">
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Company Name</label>
+          <input type="text" id="compName" required style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);">
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Industry</label>
+          <input type="text" id="compIndustry" style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);">
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Website</label>
+          <input type="url" id="compWebsite" style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);">
+        </div>
+        <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem;">
+          <button type="button" id="cancelCompanyBtn" class="btn glass" style="padding: 0.75rem 1.5rem;">Cancel</button>
+          <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem;">Add Company</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <script src="assets/js/main.js"></script>
   <script>
@@ -535,6 +575,12 @@
                 loadNotices();
               } else if (targetId === 'analytics-section') {
                 loadAnalytics();
+              } else if (targetId === 'drives-section') {
+                loadDrives();
+              } else if (targetId === 'companies-section') {
+                loadCompanies();
+              } else if (targetId === 'dashboard-section') {
+                loadDrives(true);
               }
             }
             
@@ -728,16 +774,16 @@
       }
 
       // --- Create Drive Logic ---
-      const createDriveBtn = document.getElementById('createDriveBtn');
+      const createDriveBtns = document.querySelectorAll('.createDriveBtnCls');
       const createDriveModal = document.getElementById('createDriveModal');
       const closeModalBtn = document.getElementById('closeModalBtn');
       const cancelBtn = document.getElementById('cancelBtn');
       const createDriveForm = document.getElementById('createDriveForm');
 
-      if(createDriveBtn && createDriveModal) {
-        createDriveBtn.addEventListener('click', () => {
+      if(createDriveBtns.length > 0 && createDriveModal) {
+        createDriveBtns.forEach(btn => btn.addEventListener('click', () => {
           createDriveModal.style.display = 'flex';
-        });
+        }));
 
         const closeModal = () => {
           createDriveModal.style.display = 'none';
@@ -766,7 +812,8 @@
 
             alert('Placement Drive Created Successfully!');
             closeModal();
-            // Optionally reload drives if a drive section existed
+            loadDrives(); // Reload drives
+            loadDrives(true); // Reload dashboard drives
           } catch(error) {
             alert('Failed to create drive: ' + error.message);
           } finally {
@@ -776,6 +823,128 @@
           }
         });
       }
+
+      // --- Add Company Logic ---
+      const addCompanyBtn = document.getElementById('addCompanyBtn');
+      const addCompanyModal = document.getElementById('addCompanyModal');
+      const closeCompanyModalBtn = document.getElementById('closeCompanyModalBtn');
+      const cancelCompanyBtn = document.getElementById('cancelCompanyBtn');
+      const addCompanyForm = document.getElementById('addCompanyForm');
+
+      if(addCompanyBtn && addCompanyModal) {
+        addCompanyBtn.addEventListener('click', () => {
+          addCompanyModal.style.display = 'flex';
+        });
+
+        const closeCompModal = () => {
+          addCompanyModal.style.display = 'none';
+          addCompanyForm.reset();
+        };
+
+        closeCompanyModalBtn.addEventListener('click', closeCompModal);
+        cancelCompanyBtn.addEventListener('click', closeCompModal);
+
+        addCompanyForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const companyName = document.getElementById('compName').value;
+          const industry = document.getElementById('compIndustry').value;
+          const website = document.getElementById('compWebsite').value;
+
+          try {
+            const submitBtn = addCompanyForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Adding...';
+
+            await window.apiFetch('/companies', {
+              method: 'POST',
+              body: JSON.stringify({ companyName, industry, website })
+            });
+
+            alert('Company Added Successfully!');
+            closeCompModal();
+            loadCompanies(); // Reload companies
+          } catch(error) {
+            alert('Failed to add company: ' + error.message);
+          } finally {
+            const submitBtn = addCompanyForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Add Company';
+          }
+        });
+      }
+
+      // --- Data Loading Logic for Drives and Companies ---
+      async function loadDrives(forDashboard = false) {
+        const tbody = document.getElementById(forDashboard ? 'dashboardDrivesBody' : 'drivesTableBody');
+        if (!tbody) return;
+        try {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Loading drives...</td></tr>';
+          const drives = await window.apiFetch('/drives');
+          tbody.innerHTML = '';
+          
+          if(drives.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No drives found.</td></tr>';
+            return;
+          }
+
+          // Show only top 3 for dashboard
+          const displayDrives = forDashboard ? drives.slice().reverse().slice(0, 3) : drives.slice().reverse();
+
+          displayDrives.forEach(drive => {
+            const companyName = drive.companyId ? drive.companyId.companyName : 'Unknown';
+            const dateStr = drive.lastDate ? new Date(drive.lastDate).toLocaleDateString() : 'N/A';
+            let badgeClass = 'badge-primary';
+            if(drive.status === 'Completed') badgeClass = 'badge-success';
+            if(drive.status === 'Active') badgeClass = 'badge-warning';
+
+            tbody.innerHTML += `
+              <tr>
+                <td><strong>${companyName}</strong></td>
+                <td>${drive.jobRole}</td>
+                <td>${drive.packageLPA}</td>
+                <td>${dateStr}</td>
+                <td><span class="badge ${badgeClass}">${drive.status || 'Active'}</span></td>
+                <td><button class="btn glass" onclick="alert('View details functionality')" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">View</button></td>
+              </tr>
+            `;
+          });
+        } catch (error) {
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: red;">Failed to load drives: ${error.message}</td></tr>`;
+        }
+      }
+
+      async function loadCompanies() {
+        const tbody = document.getElementById('companiesTableBody');
+        if (!tbody) return;
+        try {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Loading companies...</td></tr>';
+          const companies = await window.apiFetch('/companies');
+          tbody.innerHTML = '';
+          
+          if(companies.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No companies found.</td></tr>';
+            return;
+          }
+
+          companies.reverse().forEach(comp => {
+            const industry = comp.industry || 'N/A';
+            const website = comp.website ? `<a href="${comp.website}" target="_blank" style="color:var(--primary);text-decoration:none;">${comp.website}</a>` : 'N/A';
+            tbody.innerHTML += `
+              <tr>
+                <td><strong>${comp.companyName}</strong></td>
+                <td>${industry}</td>
+                <td>${website}</td>
+                <td><button class="btn glass" onclick="alert('Edit company functionality')" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Edit</button></td>
+              </tr>
+            `;
+          });
+        } catch (error) {
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: red;">Failed to load companies: ${error.message}</td></tr>`;
+        }
+      }
+
+      // Initial load for dashboard drives
+      loadDrives(true);
     });
   </script>
 </body>
