@@ -542,6 +542,46 @@
     </div>
   </div>
 
+  <!-- Edit Drive Modal -->
+  <div id="editDriveModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+    <div style="background: var(--surface); padding: 2rem; border-radius: var(--radius-lg); width: 100%; max-width: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3 style="margin: 0; color: var(--text-main);">Manage Drive</h3>
+        <button id="closeEditDriveModalBtn" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+      </div>
+      <form id="editDriveForm">
+        <input type="hidden" id="editDriveId">
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Job Role</label>
+          <input type="text" id="editJobRole" required style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);">
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Package (LPA)</label>
+          <input type="number" id="editPackage" step="0.1" required style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);">
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Drive Date</label>
+          <input type="date" id="editDriveDate" style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);">
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 500;">Status</label>
+          <select id="editDriveStatus" style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--text-main);">
+            <option value="Active">Active</option>
+            <option value="Upcoming">Upcoming</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+        <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+          <button type="button" id="deleteDriveBtn" class="btn" style="background-color: #ef4444; color: white; padding: 0.75rem 1.5rem;">Delete</button>
+          <div style="display: flex; gap: 1rem;">
+            <button type="button" id="cancelEditDriveBtn" class="btn glass" style="padding: 0.75rem 1.5rem;">Cancel</button>
+            <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem;">Save Changes</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="assets/js/main.js"></script>
   <script>
     // Mobile sidebar toggle
@@ -873,7 +913,88 @@
         });
       }
 
+      // --- Edit Drive Logic ---
+      const editDriveModal = document.getElementById('editDriveModal');
+      const closeEditDriveModalBtn = document.getElementById('closeEditDriveModalBtn');
+      const cancelEditDriveBtn = document.getElementById('cancelEditDriveBtn');
+      const deleteDriveBtn = document.getElementById('deleteDriveBtn');
+      const editDriveForm = document.getElementById('editDriveForm');
+
+      if(editDriveModal) {
+        const closeEditModal = () => {
+          editDriveModal.style.display = 'none';
+          editDriveForm.reset();
+        };
+
+        closeEditDriveModalBtn.addEventListener('click', closeEditModal);
+        cancelEditDriveBtn.addEventListener('click', closeEditModal);
+
+        editDriveForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const driveId = document.getElementById('editDriveId').value;
+          const jobRole = document.getElementById('editJobRole').value;
+          const packageLPA = document.getElementById('editPackage').value;
+          const driveDate = document.getElementById('editDriveDate').value;
+          const status = document.getElementById('editDriveStatus').value;
+
+          try {
+            const submitBtn = editDriveForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
+
+            await window.apiFetch('/drives/' + driveId, {
+              method: 'PUT',
+              body: JSON.stringify({ jobRole, packageLPA, lastDate: driveDate, status })
+            });
+
+            alert('Drive Updated Successfully!');
+            closeEditModal();
+            loadDrives(); // Reload full list
+            loadDrives(true); // Reload dashboard view
+          } catch(error) {
+            alert('Failed to update drive: ' + error.message);
+          } finally {
+            const submitBtn = editDriveForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Save Changes';
+          }
+        });
+
+        deleteDriveBtn.addEventListener('click', async () => {
+          const driveId = document.getElementById('editDriveId').value;
+          if (confirm("Are you sure you want to permanently delete this drive?")) {
+             try {
+                deleteDriveBtn.disabled = true;
+                deleteDriveBtn.textContent = "Deleting...";
+                await window.apiFetch('/drives/' + driveId, { method: 'DELETE' });
+                alert("Drive deleted successfully");
+                closeEditModal();
+                loadDrives();
+                loadDrives(true);
+             } catch(e) {
+                alert("Error deleting drive: " + e.message);
+             } finally {
+                deleteDriveBtn.disabled = false;
+                deleteDriveBtn.textContent = "Delete";
+             }
+          }
+        });
+      }
+
       // --- Data Loading Logic for Drives and Companies ---
+      let globalDrives = {};
+
+      window.openEditDriveModal = (driveId) => {
+         const drive = globalDrives[driveId];
+         if (!drive) return;
+         document.getElementById('editDriveId').value = drive._id;
+         document.getElementById('editJobRole').value = drive.jobRole || '';
+         document.getElementById('editPackage').value = drive.packageLPA || '';
+         document.getElementById('editDriveDate').value = drive.lastDate ? new Date(drive.lastDate).toISOString().split('T')[0] : '';
+         document.getElementById('editDriveStatus').value = drive.status || 'Active';
+         document.getElementById('editDriveModal').style.display = 'flex';
+      };
+
       async function loadDrives(forDashboard = false) {
         const tbody = document.getElementById(forDashboard ? 'dashboardDrivesBody' : 'drivesTableBody');
         if (!tbody) return;
@@ -891,6 +1012,7 @@
           const displayDrives = forDashboard ? drives.slice().reverse().slice(0, 3) : drives.slice().reverse();
 
           displayDrives.forEach(drive => {
+            globalDrives[drive._id] = drive;
             const companyName = drive.companyId ? drive.companyId.companyName : 'Unknown';
             const dateStr = drive.lastDate ? new Date(drive.lastDate).toLocaleDateString() : 'N/A';
             let badgeClass = 'badge-primary';
@@ -904,7 +1026,7 @@
                 <td>${drive.packageLPA}</td>
                 <td>${dateStr}</td>
                 <td><span class="badge ${badgeClass}">${drive.status || 'Active'}</span></td>
-                <td><button class="btn glass" onclick="alert('View details functionality')" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">View</button></td>
+                <td><button class="btn glass" onclick="window.openEditDriveModal('${drive._id}')" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">View</button></td>
               </tr>
             `;
           });
