@@ -726,6 +726,56 @@
           document.getElementById('analyticsStatsGrid').innerHTML = `<p style="text-align: center; color: red; grid-column: 1/-1;">Failed to load analytics: ${error.message}</p>`;
         }
       }
+
+      // --- Create Drive Logic ---
+      const createDriveBtn = document.getElementById('createDriveBtn');
+      const createDriveModal = document.getElementById('createDriveModal');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+      const cancelBtn = document.getElementById('cancelBtn');
+      const createDriveForm = document.getElementById('createDriveForm');
+
+      if(createDriveBtn && createDriveModal) {
+        createDriveBtn.addEventListener('click', () => {
+          createDriveModal.style.display = 'flex';
+        });
+
+        const closeModal = () => {
+          createDriveModal.style.display = 'none';
+          createDriveForm.reset();
+        };
+
+        closeModalBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+
+        createDriveForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const companyName = document.getElementById('companyName').value;
+          const jobRole = document.getElementById('jobRole').value;
+          const packageLPA = document.getElementById('package').value;
+          const driveDate = document.getElementById('driveDate').value;
+
+          try {
+            const submitBtn = createDriveForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Posting...';
+
+            await window.apiFetch('/drives', {
+              method: 'POST',
+              body: JSON.stringify({ companyName, jobRole, packageLPA, driveDate })
+            });
+
+            alert('Placement Drive Created Successfully!');
+            closeModal();
+            // Optionally reload drives if a drive section existed
+          } catch(error) {
+            alert('Failed to create drive: ' + error.message);
+          } finally {
+            const submitBtn = createDriveForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Post Drive';
+          }
+        });
+      }
     });
   </script>
 </body>
