@@ -1,6 +1,13 @@
-// API Config - Dynamically use the current IP/hostname if available, otherwise default to localhost
-const hostname = window.location.hostname || 'localhost';
-const API_BASE_URL = `http://${hostname}:5000/api`;
+// API Config - Dynamically resolve based on environment
+let API_BASE_URL = '/api'; // Default to relative path (best for production like Render)
+
+if (window.location.protocol === 'file:' || window.location.port === '5500') {
+    // Local testing without backend serving the frontend (e.g. Live Server)
+    API_BASE_URL = 'http://localhost:5000/api';
+} else if (window.location.port && window.location.port !== '5000' && window.location.port !== '80' && window.location.port !== '443') {
+    // Local network testing on different port
+    API_BASE_URL = `http://${window.location.hostname}:5000/api`;
+}
 
 // Global API Fetch Utility
 window.apiFetch = async (endpoint, options = {}) => {
