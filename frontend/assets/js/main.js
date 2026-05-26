@@ -1,11 +1,11 @@
-// API Config - Dynamically resolve based on environment
-let API_BASE_URL = '/api'; // Default to relative path (best for production like Render)
+// API Config - Permanently fix for Vercel/Render deployments
+let API_BASE_URL = 'https://cpms-backend.onrender.com/api'; // Default to your live Render backend
 
-if (window.location.protocol === 'file:' || window.location.port === '5500') {
-    // Local testing without backend serving the frontend (e.g. Live Server)
+// Local development overrides
+if (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     API_BASE_URL = 'http://localhost:5000/api';
-} else if (window.location.port && window.location.port !== '5000' && window.location.port !== '80' && window.location.port !== '443') {
-    // Local network testing on different port
+} else if (/^192\.168\.|^10\.|^172\./.test(window.location.hostname)) {
+    // If testing on a phone on the local network
     API_BASE_URL = `http://${window.location.hostname}:5000/api`;
 }
 
