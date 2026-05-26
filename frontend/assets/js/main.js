@@ -1,5 +1,5 @@
 // API Config - Permanently fix for Vercel/Render deployments
-let API_BASE_URL = 'https://cpms-backend.onrender.com/api'; // Default to your live Render backend
+let API_BASE_URL = 'https://uiet-placement-system.onrender.com/api'; // Default to your live Render backend
 
 // Local development overrides
 if (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
