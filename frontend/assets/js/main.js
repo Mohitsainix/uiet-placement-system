@@ -1,5 +1,6 @@
-// API Config
-const API_BASE_URL = 'http://localhost:5000/api';
+// API Config - Dynamically use the current IP/hostname if available, otherwise default to localhost
+const hostname = window.location.hostname || 'localhost';
+const API_BASE_URL = `http://${hostname}:5000/api`;
 
 // Global API Fetch Utility
 window.apiFetch = async (endpoint, options = {}) => {
